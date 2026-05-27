@@ -6,13 +6,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(express.static('public'));
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.log('MongoDB Error:', err));
+  .then(() => console.log('✅ MongoDB Connected Successfully'))
+  .catch(err => console.log('❌ MongoDB Error:', err.message));
 
 const complaintSchema = new mongoose.Schema({
   name: String,
@@ -26,37 +26,43 @@ const complaintSchema = new mongoose.Schema({
 
 const Complaint = mongoose.model('Complaint', complaintSchema);
 
-// Routes
 app.post('/api/complaints', async (req, res) => {
   try {
     const complaint = new Complaint(req.body);
     await complaint.save();
     res.json({ message: '✅ Complaint Registered!' });
   } catch (err) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: err.message });
   }
 });
 
 app.get('/api/complaints', async (req, res) => {
-  const complaints = await Complaint.find().sort({ date: -1 });
-  res.json(complaints);
+  try {
+    const complaints = await Complaint.find().sort({ date: -1 });
+    res.json(complaints);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get('/api/stats', async (req, res) => {
-  const total = await Complaint.countDocuments();
-  const pending = await Complaint.countDocuments({ status: 'Pending' });
-  const inProgress = await Complaint.countDocuments({ status: 'In Progress' });
-  const resolved = await Complaint.countDocuments({ status: 'Resolved' });
-  res.json({ total, pending, inProgress, resolved });
+  try {
+    const total = await Complaint.countDocuments();
+    const pending = await Complaint.countDocuments({ status: 'Pending' });
+    const inProgress = await Complaint.countDocuments({ status: 'In Progress' });
+    const resolved = await Complaint.countDocuments({ status: 'Resolved' });
+    res.json({ total, pending, inProgress, resolved });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// New: Update Status
 app.patch('/api/complaints/:id', async (req, res) => {
   try {
     await Complaint.findByIdAndUpdate(req.params.id, { status: req.body.status });
-    res.json({ message: 'Status Updated Successfully' });
+    res.json({ message: 'Status Updated' });
   } catch (err) {
-    res.status(500).json({ error: 'Update failed' });
+    res.status(500).json({ error: err.message });
   }
 });
 
