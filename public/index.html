@@ -6,61 +6,50 @@
   <title>Pulivendula Engineering Desk</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-50">
-  <div class="max-w-6xl mx-auto p-4">
+<body class="bg-gray-50 p-4">
+  <div class="max-w-6xl mx-auto">
     <h1 class="text-3xl font-bold text-center text-blue-900">Pulivendula Municipality</h1>
-    <h2 class="text-xl text-center mb-6">Engineering Complaint Desk</h2>
+    <h2 class="text-xl text-center mb-8">Engineering Complaint Desk</h2>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="stats"></div>
 
-    <!-- Tabs -->
-    <div class="flex border-b mb-6 bg-white rounded-t-2xl">
-      <button onclick="showTab(0)" class="tab-button flex-1 py-4 font-medium border-b-2 border-blue-600 text-blue-600" id="tab0">Register</button>
-      <button onclick="showTab(1)" class="tab-button flex-1 py-4 font-medium text-gray-600" id="tab1">All Complaints</button>
-      <button onclick="showTab(2)" class="tab-button flex-1 py-4 font-medium text-gray-600" id="tab2">AE Admin</button>
+    <div class="flex border-b mb-6">
+      <button onclick="showTab(0)" class="flex-1 py-3 text-blue-600 border-b-2 border-blue-600 font-medium" id="tab0">Register</button>
+      <button onclick="showTab(1)" class="flex-1 py-3 text-gray-600" id="tab1">All Complaints</button>
+      <button onclick="showTab(2)" class="flex-1 py-3 text-gray-600" id="tab2">AE Admin</button>
     </div>
 
-    <!-- Register Tab -->
+    <!-- Register -->
     <div id="content0">
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <form id="complaintForm" class="space-y-4">
-          <input type="text" id="name" placeholder="Your Full Name" required class="w-full p-4 border rounded-xl">
-          <input type="tel" id="phone" placeholder="Phone Number" required class="w-full p-4 border rounded-xl">
-          <input type="text" id="location" placeholder="Area / Ward" required class="w-full p-4 border rounded-xl">
-          <select id="issueType" required class="w-full p-4 border rounded-xl">
-            <option value="">Select Issue Type</option>
-            <option>Road Damage</option>
-            <option>Water Supply Problem</option>
-            <option>Drainage / Sewage</option>
-            <option>Street Light Not Working</option>
-            <option>Garbage Collection</option>
-            <option>Others</option>
-          </select>
-          <textarea id="description" rows="4" placeholder="Describe the problem..." required class="w-full p-4 border rounded-xl"></textarea>
-          <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold">Submit Complaint</button>
-        </form>
-      </div>
+      <form id="complaintForm" class="bg-white p-6 rounded-2xl shadow space-y-4">
+        <input type="text" id="name" placeholder="Your Full Name" required class="w-full p-4 border rounded-xl">
+        <input type="tel" id="phone" placeholder="Phone Number" required class="w-full p-4 border rounded-xl">
+        <input type="text" id="location" placeholder="Area / Ward" required class="w-full p-4 border rounded-xl">
+        <select id="issueType" required class="w-full p-4 border rounded-xl">
+          <option value="">Select Issue Type</option>
+          <option>Road Damage</option>
+          <option>Water Supply Problem</option>
+          <option>Drainage</option>
+          <option>Street Light</option>
+          <option>Garbage</option>
+          <option>Others</option>
+        </select>
+        <textarea id="description" rows="4" placeholder="Describe the problem..." required class="w-full p-4 border rounded-xl"></textarea>
+        <button type="submit" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold">Submit Complaint</button>
+      </form>
     </div>
 
-    <!-- All Complaints Tab -->
-    <div id="content1" class="hidden">
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <h3 class="font-semibold mb-4">All Complaints</h3>
-        <div id="complaintsList" class="space-y-4 min-h-[200px]"></div>
-      </div>
+    <!-- All Complaints -->
+    <div id="content1" class="hidden bg-white p-6 rounded-2xl shadow">
+      <div id="complaintsList" class="space-y-4"></div>
     </div>
 
-    <!-- Admin Tab -->
-    <div id="content2" class="hidden">
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <h3 class="text-xl font-semibold mb-4">AE / Engineer Login</h3>
-        <input type="password" id="adminPass" placeholder="Enter Admin Password" class="w-full p-4 border rounded-xl mb-4">
-        <button onclick="loginAdmin()" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold">Login</button>
-        
-        <div id="adminArea" class="hidden mt-6">
-          <h3 class="font-semibold mb-4">Update Status</h3>
-          <div id="adminComplaints" class="space-y-4"></div>
-        </div>
+    <!-- Admin -->
+    <div id="content2" class="hidden bg-white p-6 rounded-2xl shadow">
+      <input type="password" id="adminPass" placeholder="Admin Password" class="w-full p-4 border rounded-xl mb-4">
+      <button onclick="loginAdmin()" class="w-full bg-green-700 text-white py-4 rounded-xl font-bold">Login as AE</button>
+      <div id="adminArea" class="hidden mt-6">
+        <div id="adminComplaints" class="space-y-4"></div>
       </div>
     </div>
   </div>
@@ -69,112 +58,47 @@
     const ADMIN_PASSWORD = "admin123";
 
     async function loadStats() {
-      try {
-        const res = await fetch('/api/stats');
-        const data = await res.json();
-        document.getElementById('stats').innerHTML = `
-          <div class="bg-white p-6 rounded-2xl shadow text-center">
-            <p class="text-red-600 text-sm">Needs AE Action</p>
-            <p class="text-4xl font-bold">${data.pending || 0}</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow text-center">
-            <p class="text-yellow-600 text-sm">Work in Progress</p>
-            <p class="text-4xl font-bold">${data.inProgress || 0}</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow text-center">
-            <p class="text-green-600 text-sm">Resolved</p>
-            <p class="text-4xl font-bold">${data.resolved || 0}</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow text-center">
-            <p class="text-blue-600 text-sm">Total</p>
-            <p class="text-4xl font-bold">${data.total || 0}</p>
-          </div>
-        `;
-      } catch(e) { console.log("Stats error", e); }
+      const res = await fetch('/api/stats');
+      const data = await res.json();
+      document.getElementById('stats').innerHTML = `
+        <div class="bg-white p-6 rounded-2xl shadow text-center"><p class="text-red-600">Needs AE Action</p><p class="text-4xl font-bold">${data.pending}</p></div>
+        <div class="bg-white p-6 rounded-2xl shadow text-center"><p class="text-yellow-600">Work in Progress</p><p class="text-4xl font-bold">${data.inProgress}</p></div>
+        <div class="bg-white p-6 rounded-2xl shadow text-center"><p class="text-green-600">Resolved</p><p class="text-4xl font-bold">${data.resolved}</p></div>
+        <div class="bg-white p-6 rounded-2xl shadow text-center"><p class="text-blue-600">Total</p><p class="text-4xl font-bold">${data.total}</p></div>
+      `;
     }
 
     async function loadComplaints() {
-      try {
-        const res = await fetch('/api/complaints');
-        const complaints = await res.json();
-        const container = document.getElementById('complaintsList');
-        
-        if (complaints.length === 0) {
-          container.innerHTML = `<p class="text-gray-500 text-center py-8">No complaints yet.</p>`;
-          return;
-        }
-
-        container.innerHTML = complaints.map(c => `
-          <div class="border rounded-xl p-4">
-            <div class="flex justify-between">
-              <p class="font-semibold">${c.name} • ${c.location}</p>
-              <span class="px-3 py-1 rounded-full text-xs ${c.status === 'Resolved' ? 'bg-green-100 text-green-700' : c.status === 'In Progress' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">
-                ${c.status}
-              </span>
-            </div>
-            <p class="text-sm text-gray-600">${c.issueType}</p>
-            <p class="mt-2">${c.description}</p>
-          </div>
-        `).join('');
-      } catch(e) { 
-        console.log("Load complaints error", e);
-        document.getElementById('complaintsList').innerHTML = `<p class="text-red-500">Error loading complaints</p>`;
-      }
-    }
-
-    async function loadAdminComplaints() {
       const res = await fetch('/api/complaints');
       const complaints = await res.json();
-      const container = document.getElementById('adminComplaints');
-      
-      container.innerHTML = complaints.map(c => `
-        <div class="border rounded-xl p-4">
-          <p class="font-medium">${c.name} - ${c.location}</p>
-          <p class="text-sm text-gray-600">${c.issueType}</p>
-          <p class="text-xs">${c.description}</p>
-          <div class="mt-4 flex gap-3">
-            <button onclick="updateStatus('${c._id}', 'In Progress')" class="flex-1 bg-yellow-500 text-white py-2 rounded-xl text-sm">In Progress</button>
-            <button onclick="updateStatus('${c._id}', 'Resolved')" class="flex-1 bg-green-600 text-white py-2 rounded-xl text-sm">Mark Resolved</button>
+      const html = complaints.map(c => `
+        <div class="border p-4 rounded-xl">
+          <div class="flex justify-between">
+            <strong>${c.name} - ${c.location}</strong>
+            <span>${c.status}</span>
           </div>
+          <p>${c.issueType}</p>
+          <p class="text-sm">${c.description}</p>
         </div>
       `).join('');
-    }
-
-    function updateStatus(id, status) {
-      fetch(`/api/complaints/${id}`, {
-        method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({status})
-      }).then(() => {
-        alert('✅ Status Updated');
-        loadAdminComplaints();
-        loadComplaints();
-        loadStats();
-      });
+      document.getElementById('complaintsList').innerHTML = html || '<p>No complaints yet</p>';
     }
 
     function loginAdmin() {
-      const pass = document.getElementById('adminPass').value;
-      if (pass === ADMIN_PASSWORD) {
+      if (document.getElementById('adminPass').value === ADMIN_PASSWORD) {
         document.getElementById('adminArea').classList.remove('hidden');
-        loadAdminComplaints();
+        loadComplaints(); // reuse for admin
       } else {
-        alert('❌ Wrong Password! Default password is: admin123');
+        alert('Wrong Password! Use: admin123');
       }
     }
 
     function showTab(n) {
-      document.querySelectorAll('#content0, #content1, #content2').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('#content0,#content1,#content2').forEach(d => d.classList.add('hidden'));
       document.getElementById('content'+n).classList.remove('hidden');
-      
-      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600'));
-      document.getElementById('tab'+n).classList.add('border-b-2', 'border-blue-600', 'text-blue-600');
-
       if (n === 1) loadComplaints();
-      if (n === 2) loadAdminComplaints();
     }
 
-    // Form Submit
     document.getElementById('complaintForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const data = {
@@ -184,23 +108,15 @@
         issueType: document.getElementById('issueType').value,
         description: document.getElementById('description').value
       };
-
-      await fetch('/api/complaints', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-      });
-
-      alert('✅ Complaint Submitted Successfully!');
+      await fetch('/api/complaints', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      alert('✅ Complaint Submitted!');
       e.target.reset();
       loadStats();
-      loadComplaints();   // Refresh list
+      loadComplaints();
     });
 
-    // Initial Load
     loadStats();
-    loadComplaints();
-    setInterval(() => { loadStats(); loadComplaints(); }, 10000);
+    setInterval(loadStats, 10000);
   </script>
 </body>
 </html>
