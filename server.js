@@ -26,6 +26,7 @@ const complaintSchema = new mongoose.Schema({
 
 const Complaint = mongoose.model('Complaint', complaintSchema);
 
+// Routes
 app.post('/api/complaints', async (req, res) => {
   try {
     const complaint = new Complaint(req.body);
@@ -49,9 +50,14 @@ app.get('/api/stats', async (req, res) => {
   res.json({ total, pending, inProgress, resolved });
 });
 
+// New: Update Status
 app.patch('/api/complaints/:id', async (req, res) => {
-  await Complaint.findByIdAndUpdate(req.params.id, { status: req.body.status });
-  res.json({ message: 'Status Updated' });
+  try {
+    await Complaint.findByIdAndUpdate(req.params.id, { status: req.body.status });
+    res.json({ message: 'Status Updated Successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Update failed' });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
